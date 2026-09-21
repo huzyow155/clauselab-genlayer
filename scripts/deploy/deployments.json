@@ -8,5 +8,19 @@
   "consumerContractAddress": "0x9Fe97e71A0eeF88594abDea901B978519C98df34",
   "consumerDeployTxHash": "0x12adde0727804c01062fcb5be5c2b980afc70c1aa745cf2fb39f53a94a267406",
   "commitHash": "49ba7c2",
-  "sourceSha256": "984ec7509168e04dcb615f44c198648d3594665f1f5daf7ee15bc128e83b9f10"
+  "sourceSha256": "984ec7509168e04dcb615f44c198648d3594665f1f5daf7ee15bc128e83b9f10",
+  "supersededAddresses": [
+    {
+      "address": "0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2",
+      "reason": "Earlier interrupted run superseded by full end-to-end lifecycle run on 0xf227D68595178A2192888c85E3550fEff4b79406"
+    },
+    {
+      "address": "0x9bE44666E74A92371bae1f33B1a1AcE091FFab7E",
+      "reason": "Milestone 1 ClauseLabCore minimal prototype deployment"
+    },
+    {
+      "address": "0xd4c24cc41dFEa72B7eB313D600Edf09FC9F5C8dc",
+      "reason": "Milestone 0 Probe diagnostic contract"
+    }
+  ]
 }

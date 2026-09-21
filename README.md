@@ -2,7 +2,9 @@
 
 ClauseLab is a standalone GenLayer Intelligent Contract that surfaces ambiguity in natural language agreements **before signing**. It holds no funds, implements no escrow, and interprets clauses against stipulated facts evaluated by validator consensus.
 
-Deployed to GenLayer studionet at [`0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2`](https://explorer-studio.genlayer.com/address/0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2).
+Deployed to GenLayer studionet at [`0xf227D68595178A2192888c85E3550fEff4b79406`](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406) (consumer contract: [`0x9Fe97e71A0eeF88594abDea901B978519C98df34`](https://explorer-studio.genlayer.com/address/0x9Fe97e71A0eeF88594abDea901B978519C98df34)).
+Full on-chain proof, transaction table, and raw receipts are documented in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+*(Earlier deployment address `0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2` is superseded).*
 
 ---
 
@@ -31,12 +33,12 @@ GenLayer enables **Intelligent Contracts** written in Python executed inside a s
      - All parties have signed the current clause version.
      - All scenarios are green (consensus matches expected).
 3. **Amendment Cycle**:
-   - If a scenario is red, parties clarify the clause text via `amend()`, resetting signatures and re-evaluating until consensus is unanimous.
+   - If a scenario is red, parties clarify the clause text via `amend()`, resetting signatures and re-evaluating until validators agree.
 4. **Dispute Adjudication with In-Band Canary Calibration**:
    - At dispute time, parties stipulate (`stipulate_facts`) and confirm (`confirm_facts`) facts.
    - During `adjudicate`, locked scenarios serve two roles:
      - **Anchors**: Up to 3 settled examples are injected as few-shot exemplars.
-     - **In-Band Canary**: One held-back settled scenario is evaluated alongside the disputed facts. If the validator model fails the known canary test, the verdict is flagged as `UNRELIABLE` (judge abstains) rather than rendering a confidently incorrect judgment.
+     - **In-Band Canary**: One held-back settled scenario is evaluated alongside the disputed facts. If the validator model fails the known canary test, the verdict is flagged as `UNRELIABLE` (judge abstains) rather than rendering a confidently incorrect judgment. *(Note: UNRELIABLE ruling shown in mocks only; in the live studionet run, the validator model accurately passed the canary)*.
 
 ---
 
@@ -46,6 +48,11 @@ GenLayer enables **Intelligent Contracts** written in Python executed inside a s
 |---|---|---|---|---|
 | `run_scenario` | Single LLM prompt classifying scenario against clause | Exact canonical label (e.g. `"DELIVERED"`, `"BREACH"`, or `"UNDECIDABLE"`) | `gl.eq_principle.strict_eq` | Free-text reasoning varies across model runs; strict equality on clean enums achieves validator consensus. |
 | `adjudicate` | 1. Canary prompt on held-back scenario<br>2. Ruling prompt on disputed facts | Canonical string: `"VERDICT\|CANARY_PASS"` (e.g. `"DELIVERED\|1"` or `"UNRELIABLE\|0"`) | `gl.eq_principle.strict_eq` | Combines substantive ruling with canary pass flag in a single atomic comparison across all nodes. |
+
+### Measured On-Chain Consensus Latency
+- **Scenario Ambiguity Classification (`run_scenario`)**: typical ~12s (`11.85s` live on studionet)
+- **Dispute Adjudication with Canary (`adjudicate`)**: typical ~28s (`28.47s` live on studionet)
+- **Standard State Writes (`create_spec`, `amend`, `sign`, `lock`, `confirm`)**: ~2.8s – ~3.8s
 
 ---
 
@@ -98,6 +105,7 @@ python scripts/scan_ascii.py contracts/ClauseLab.py
 ```powershell
 node scripts/deploy/run_live_evidence.js
 ```
+Full transaction receipts and leader execution results are detailed in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 ---
 
@@ -140,8 +148,9 @@ class ClauseLabConsumer(gl.Contract):
 ## Known Limitations
 
 1. **Canary as a Signal, Not a Proof**: Passing the held-back canary scenario validates that the model remains calibrated on known edge cases, but cannot mathematically prove accuracy on novel dispute patterns.
-2. **Anchor Bias**: Injecting settled examples increases multi-validator agreement, but can bias models toward specific interpretations if anchors disproportionately favor one polarity.
+2. **Anchor Bias & Agreement Measurement**: While anchors provide few-shot exemplars, we have not measured whether they increase validator agreement in production, and they can bias the judge if examples disproportionately lean toward one outcome.
 3. **No External Truth Oracle**: ClauseLab adjudicates stipulated facts agreed upon by the parties; it does not independently poll third-party APIs to verify physical events.
+4. **UNRELIABLE Ruling Occurrence**: An `UNRELIABLE` ruling was shown in mocks only (unit test `test_biased_judge_always_favoring_contractor_is_flagged`). In our live studionet deployment, the validator model accurately judged both the canary and the disputed facts, yielding `DELIVERED` with `canary_pass: true`.
 
 ---
 

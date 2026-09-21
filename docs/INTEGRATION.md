@@ -5,7 +5,9 @@
 - **Target Network**: GenLayer Studionet
 - **Chain ID**: `61999`
 - **JSON-RPC Endpoint**: `https://studio.genlayer.com/api`
-- **Block Explorer**: `https://explorer-studio.genlayer.com/address/<CONTRACT_ADDRESS>`
+- **ClauseLab Contract Address**: [`0xf227D68595178A2192888c85E3550fEff4b79406`](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406) *(Supersedes `0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2`)*
+- **Consumer Contract Address**: [`0x9Fe97e71A0eeF88594abDea901B978519C98df34`](https://explorer-studio.genlayer.com/address/0x9Fe97e71A0eeF88594abDea901B978519C98df34)
+- **Block Explorer**: `https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406`
 - **SDK**: `genlayer-js@^1.1.8`
 - **Chain Object**: `chains.studionet`
 
@@ -23,10 +25,10 @@ const client = createClient({
 > [!IMPORTANT]
 > **Transaction Success Semantics**:
 > In GenLayer, transactions are first `ACCEPTED` by the rollup and then judged by validators. A successful write has:
-> - `receipt.status_name === "ACCEPTED"`
+> - `receipt.status_name === "ACCEPTED"` (or `"FINALIZED"`)
 > - `receipt.result_name === "MAJORITY_AGREE"`
 > - `receipt.consensus_data.leader_receipt[0].execution_result === "SUCCESS"`
-> If execution fails (reverts with a user error), `result_name` will be `"MAJORITY_DISAGREE"` or `status_name` will be `"UNDETERMINED"`, with the error payload in `result.payload`.
+> If execution fails (reverts with a user error), `leader_receipt[0].execution_result` will be `"ERROR"`, `status` will be `"rollback"`, and `payload` contains the error message.
 > **Never treat ACCEPTED alone as success.**
 >
 > **Read-After-Write Paradigm**:
@@ -55,8 +57,8 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Invites an additional party to a draft spec.
 - **Arguments**:
-  - `spec_id` (`str`): 12-character hex ID (e.g. `"349d3937fe00"`)
-  - `party` (`str`): 42-character Ethereum address (e.g. `"0x54d991Da3fA3c0284A3409f26F12a9E0d69bbadb"`)
+  - `spec_id` (`str`): 12-character hex ID (e.g. `"20f3293644c0"`)
+  - `party` (`str`): 42-character Ethereum address (e.g. `"0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2"`)
 - **User Errors Raised**:
   - `"unknown spec"`
   - `"spec is not in DRAFT status"`
@@ -68,8 +70,8 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Proposes a hypothetical case with an expected outcome.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
-  - `text` (`str`): e.g. `"Contractor provides the complete software package on day 2."` (max 600 chars)
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
+  - `text` (`str`): e.g. `"Contractor provides the complete software package with full passing tests on day 2."` (max 600 chars)
   - `expected` (`str`): e.g. `"DELIVERED"` (must be in spec's labels)
 - **User Errors Raised**:
   - `"unknown spec"`
@@ -83,20 +85,20 @@ const client = createClient({
 - **Type**: Write (Consensus)
 - **Description**: Triggers validator consensus to classify a scenario against the current clause version.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
-  - `n` (`int`): Scenario 1-based index (e.g. `1`)
-- **Consensus Return**: Canonical label string (e.g. `"DELIVERED"`)
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
+  - `n` (`int`): Scenario 1-based index (e.g. `3`)
+- **Consensus Return**: Canonical label string (e.g. `"DELIVERED"` or `"UNDECIDABLE"`)
 - **User Errors Raised**:
   - `"unknown spec"`
   - `"cannot run scenario after lock"`
   - `"unknown scenario: <n>"`
-- **Measured Latency**: ~23.5s (involves 1 LLM inference round per validator)
+- **Measured Latency**: ~12s (`11.85s` on studionet; involves 1 LLM inference round per validator)
 
 ### 2.5 `amend`
 - **Type**: Write
 - **Description**: Updates the clause text, increments version, and clears all signatures. All prior scenario results become stale.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
   - `new_clause` (`str`): Revised clause text (max 2000 chars)
 - **User Errors Raised**:
   - `"unknown spec"`
@@ -109,7 +111,7 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Records party signature for the current clause version.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
 - **User Errors Raised**:
   - `"unknown spec"`
   - `"cannot sign after lock"`
@@ -121,7 +123,7 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Validates lock preconditions and locks the spec, storing an immutable `spec_hash`.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
 - **Preconditions**:
   - Spec must be `DRAFT`.
   - At least 4 scenarios present.
@@ -138,7 +140,7 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Files factual claims regarding a dispute under a locked spec.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
   - `text` (`str`): Natural language facts (max 1500 chars)
 - **User Errors Raised**:
   - `"unknown spec"`
@@ -151,8 +153,8 @@ const client = createClient({
 - **Type**: Write
 - **Description**: Counterparty confirmation of stipulated facts. Two distinct parties confirm facts before adjudication is permitted.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
-  - `facts_id` (`str`): 12-character hex ID (e.g. `"8bc4921f001a"`)
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
+  - `facts_id` (`str`): 12-character hex ID (e.g. `"f1830b46947f"`)
 - **User Errors Raised**:
   - `"unknown spec"`
   - `"spec is not LOCKED"`
@@ -165,8 +167,8 @@ const client = createClient({
 - **Type**: Write (Consensus)
 - **Description**: Executes validator adjudication with in-band canary calibration. Returns `VERDICT|CANARY_PASS`.
 - **Arguments**:
-  - `spec_id` (`str`): e.g. `"349d3937fe00"`
-  - `facts_id` (`str`): e.g. `"8bc4921f001a"`
+  - `spec_id` (`str`): e.g. `"20f3293644c0"`
+  - `facts_id` (`str`): e.g. `"f1830b46947f"`
 - **Consensus Return**: `"VERDICT|1"` or `"UNRELIABLE|0"`
 - **User Errors Raised**:
   - `"unknown spec"`
@@ -174,7 +176,7 @@ const client = createClient({
   - `"unknown facts: <facts_id>"`
   - `"facts unconfirmed: need at least 2 distinct parties"`
   - `"ruling already exists for these facts"`
-- **Measured Latency**: ~42s (involves 2 LLM inference rounds per validator)
+- **Measured Latency**: ~28s (`28.47s` on studionet; involves 2 LLM inference rounds per validator)
 
 ---
 
@@ -184,23 +186,23 @@ const client = createClient({
 ```json
 {
   "schema_version": "1.0",
-  "spec_id": "349d3937fe00",
-  "author": "0x12e3017c6009a630BFd1e3374864E7727EedCE3D",
+  "spec_id": "20f3293644c0",
+  "author": "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
   "title": "Software Delivery Agreement",
-  "clause": "The contractor shall deliver the complete repository with pure ASCII code and passing tests within 7 calendar days of contract creation.",
+  "clause": "The contractor shall deliver the repository with pure ASCII code and passing tests within 7 calendar days of contract creation.",
   "labels": ["DELIVERED", "BREACH"],
   "version": 2,
   "status": "LOCKED",
   "parties": [
-    "0x12e3017c6009a630BFd1e3374864E7727EedCE3D",
-    "0x54d991Da3fA3c0284A3409f26F12a9E0d69bbadb"
+    "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+    "0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2"
   ],
   "signed": [
-    "0x12e3017c6009a630BFd1e3374864E7727EedCE3D",
-    "0x54d991Da3fA3c0284A3409f26F12a9E0d69bbadb"
+    "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+    "0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2"
   ],
   "n_scenarios": 4,
-  "spec_hash": "e6741b695123d..."
+  "spec_hash": "ca1a92e7a869960991fd9be2c797b3a8c21b6dfe0a11d7e4292bdad1bcd5571c"
 }
 ```
 
@@ -208,11 +210,11 @@ const client = createClient({
 ```json
 {
   "schema_version": "1.0",
-  "spec_id": "349d3937fe00",
+  "spec_id": "20f3293644c0",
   "n": 2,
   "text": "Contractor provides the complete software package with full passing tests on day 2.",
   "expected": "DELIVERED",
-  "proposer": "0x12e3017c6009a630BFd1e3374864E7727EedCE3D",
+  "proposer": "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
   "ran_version": 2,
   "label": "DELIVERED",
   "matches": true
@@ -223,7 +225,7 @@ const client = createClient({
 ```json
 {
   "schema_version": "1.0",
-  "spec_id": "349d3937fe00",
+  "spec_id": "20f3293644c0",
   "version": 2,
   "total_scenarios": 4,
   "red_scenarios": [],
@@ -242,11 +244,11 @@ const client = createClient({
 ```json
 {
   "schema_version": "1.0",
-  "spec_id": "349d3937fe00",
-  "facts_id": "8bc4921f001a",
+  "spec_id": "20f3293644c0",
+  "facts_id": "f1830b46947f",
   "verdict": "DELIVERED",
   "canary_pass": true,
-  "spec_hash": "e6741b695123d..."
+  "spec_hash": "ca1a92e7a869960991fd9be2c797b3a8c21b6dfe0a11d7e4292bdad1bcd5571c"
 }
 ```
 
@@ -283,4 +285,3 @@ For frontend mock/demo modes and live testing against studionet:
 - **Scenario Index**: `3` (Under Version 1 Vague Clause)
 - **Scenario Run Tx Hash**: `0x87b6b38363ddbe9b9bbfa9ba4d9d06ce6811ae391814752e5b3bad5b7c1ad4ee`
 - **Consensus Verdict**: `UNDECIDABLE` (Ambiguity detected on promptness; blocked spec locking)
-

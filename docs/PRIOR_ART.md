@@ -24,16 +24,11 @@ Searches were conducted across GitHub and the GenLayer ecosystem for:
    - **Distinction from ClauseLab**: These contracts provide isolated semantic validation checks on external web artifacts. They do not provide an agreement lifecycle, adversarial counter-party scenario elicitation, or canary-calibrated agreement dispute settlement.
 
 3. **General GenLayer Ecosystem**
-   - No project or contract was found that implements:
+   - In our review of public repositories and developer profiles, we found no contract that implements:
      - Scenario suite pre-signing ambiguity testing.
      - Ambiguity detection via validator consensus disagreement or `UNDECIDABLE` results.
      - Multi-party spec locking requiring green scenarios from all parties.
      - In-band canary calibration using held-back settled scenarios during dispute adjudication.
 
 ### Conclusion
-ClauseLab's combination of:
-1. Pre-signing adversarial scenario elicitation from multiple parties,
-2. Validator consensus classification as an ambiguity gate,
-3. Strict spec locking based on comprehensive green coverage, and
-4. Dispute-time in-band canary calibration using held-back settled scenarios,
-is entirely novel and unoccupied in the GenLayer ecosystem.
+Based on this search, we found no contract that combines pre-signing adversarial scenario elicitation from multiple parties, validator consensus classification as an ambiguity gate, spec locking gated on full scenario agreement, and dispute-time in-band canary calibration.
