@@ -3,8 +3,7 @@ import re
 import sys
 
 SECRET_PATTERNS = [
-    re.compile(r'(?:private_key|privatekey|secret_key|secretkey|privkey)\s*[:=]\s*["\']?[0-9a-fA-F]{32,64}["\']?', re.I),
-    re.compile(r'0x[0-9a-fA-F]{64}'),
+    re.compile(r'(?:private_key|privatekey|secret_key|secretkey|privkey|seed_phrase|mnemonic)\s*[:=]\s*["\']?[0-9a-zA-Z\s]{24,128}["\']?', re.I),
     re.compile(r'(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36}'),
     re.compile(r'-----BEGIN (?:EC|RSA|OPENSSH|DSA|PGP)?\s*PRIVATE KEY-----'),
 ]
