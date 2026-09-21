@@ -258,3 +258,29 @@ The frontend never computes IDs or hashes manually. Use these views:
 - `get_latest_spec(author_address: str) -> str`: Returns the latest `spec_id` created by an author.
 - `get_facts(spec_id: str, facts_id: str) -> str`: Returns facts record.
 - `get_latest_facts_id(spec_id: str) -> str`: Returns the latest facts ID created for a spec.
+
+---
+
+## 5. Demo Datasets & Verified Known-Good Transaction Hashes
+
+For frontend mock/demo modes and live testing against studionet:
+
+### 5.1 Positive Run (Fulfillment / Delivered)
+- **Spec ID**: `20f3293644c0`
+- **Facts ID**: `f1830b46947f`
+- **Adjudicate Tx Hash**: `0x567fc073a4f0aa45c262b28705122d0537f70f51b0fea2032ebbb421742ce72d`
+- **Verdict**: `DELIVERED` (Canary: `1` / Pass)
+- **Consumer Settlement Tx**: `0xec2882dec8951367d93de014a8a2f367db1e4c625d8c5e62a1fe6ea83dcee927`
+
+### 5.2 Negative Run (Breach)
+- **Spec ID**: `20f3293644c0`
+- **Scenario Index**: `1`
+- **Scenario Run Tx Hash**: `0x1d94c960aa1397a35db8a43100afc9dde0f3121c599302244406465528e83fd6`
+- **Consensus Verdict**: `BREACH` (Confirmed violation of agreed terms)
+
+### 5.3 Ambiguous / Escalate / Unresolved Run
+- **Spec ID**: `20f3293644c0`
+- **Scenario Index**: `3` (Under Version 1 Vague Clause)
+- **Scenario Run Tx Hash**: `0x87b6b38363ddbe9b9bbfa9ba4d9d06ce6811ae391814752e5b3bad5b7c1ad4ee`
+- **Consensus Verdict**: `UNDECIDABLE` (Ambiguity detected on promptness; blocked spec locking)
+
