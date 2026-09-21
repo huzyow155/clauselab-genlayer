@@ -1,0 +1,168 @@
+{
+  "network": "studionet",
+  "chainId": 61999,
+  "contractAddress": "0xf227D68595178A2192888c85E3550fEff4b79406",
+  "consumerAddress": "0x9Fe97e71A0eeF88594abDea901B978519C98df34",
+  "deployTxHash": "0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2",
+  "partyA": "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+  "partyB": "0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2",
+  "specId": "20f3293644c0",
+  "vagueClause": "The contractor shall deliver a satisfactory software package promptly.",
+  "clearClause": "The contractor shall deliver the repository with pure ASCII code and passing tests within 7 calendar days of contract creation.",
+  "specHash": "ca1a92e7a869960991fd9be2c797b3a8c21b6dfe0a11d7e4292bdad1bcd5571c",
+  "factsId": "f1830b46947f",
+  "latencies": {
+    "runScenarioSec": "11.85",
+    "adjudicateSec": "28.47"
+  },
+  "transactions": {
+    "deployContract": {
+      "txHash": "0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "createSpec": {
+      "txHash": "0xadc9217a1ed9cbdbf8782928714767cf795e10676e80f10b14d28247f7c768a9",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "invitePartyB": {
+      "txHash": "0xffc2a74a153b1c9acfc9a6b452d3a1f5e00bec79b113cd8a1fc484be2cf01cec",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "addScenario1": {
+      "txHash": "0x1d94c960aa1397a35db8a43100afc9dde0f3121c599302244406465528e83fd6"
+    },
+    "addScenario2": {
+      "txHash": "0x520eb597dd0326a140bee1184aeed637f5bba425b1e314a041b083a1b6aa6677"
+    },
+    "addScenario3": {
+      "txHash": "0x4da64ff4e68cc49d8f59e69ee93b58ee58a5fa8c75842e09f05f673d756f4f29"
+    },
+    "addScenario4": {
+      "txHash": "0x1ff60add1896cfbe9aea2fbf82fbe4be266801bd4ffc5bf1cff8ade90ef6cf8c"
+    },
+    "runScenarioVague": {
+      "txHash": "0x87b6b38363ddbe9b9bbfa9ba4d9d06ce6811ae391814752e5b3bad5b7c1ad4ee",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE",
+      "latencySec": "11.85"
+    },
+    "lockVagueRevert": {
+      "txHash": "0xf005b90a2774b1bd3cbe17b8d77db951565f04d1f63e0fea08b94f10ab500934",
+      "status": "MAJORITY_AGREE"
+    },
+    "amendClause": {
+      "txHash": "0xd923fd2858ebd1a78ab6f1272d29bbd92a74698b6690fe214e413fa48403ee3c",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "signPartyA": {
+      "txHash": "0xefb7ece24408c65438020e44a001a92d9677e28a5388d28b1f555137e3ae1a2b"
+    },
+    "signPartyB": {
+      "txHash": "0xf6cab561688adca628951f09601743eed2ff4a14a58a0f1134f80cef6b230b2a"
+    },
+    "lockSpec": {
+      "txHash": "0xcd8e5a1c69606b96df7405ed7a3ec5a9c74bf45e05fa42febe0ab26c83f610d1",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "stipulateFacts": {
+      "txHash": "0x7071f83194855f551f47a4375da4cfce8a6252b3b16bc8ed664a488742d7042f",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "confirmFacts": {
+      "txHash": "0xc1e62bd037bc5cadb44134496a422c251d081cfdf9842f03ff7e92be93d17886",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "adjudicate": {
+      "txHash": "0x567fc073a4f0aa45c262b28705122d0537f70f51b0fea2032ebbb421742ce72d",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE",
+      "latencySec": "28.47"
+    },
+    "deployConsumer": {
+      "txHash": "0x12adde0727804c01062fcb5be5c2b980afc70c1aa745cf2fb39f53a94a267406",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    },
+    "consumerSettle": {
+      "txHash": "0xec2882dec8951367d93de014a8a2f367db1e4c625d8c5e62a1fe6ea83dcee927",
+      "status": "ACCEPTED",
+      "result": "MAJORITY_AGREE"
+    }
+  },
+  "readbacks": {
+    "suiteReportV1": {
+      "green_scenarios": [
+        1,
+        2,
+        4
+      ],
+      "label_distribution": {
+        "BREACH": 2,
+        "DELIVERED": 2
+      },
+      "lock_problems": [
+        "party has not signed: 0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+        "party has not signed: 0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2",
+        "scenario 3 is red"
+      ],
+      "ready_to_lock": false,
+      "red_scenarios": [
+        3
+      ],
+      "schema_version": "1.0",
+      "spec_id": "20f3293644c0",
+      "stale_scenarios": [],
+      "total_scenarios": 4,
+      "version": 1
+    },
+    "suiteReportV2": {
+      "green_scenarios": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "label_distribution": {
+        "BREACH": 2,
+        "DELIVERED": 2
+      },
+      "lock_problems": [
+        "party has not signed: 0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+        "party has not signed: 0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2"
+      ],
+      "ready_to_lock": false,
+      "red_scenarios": [],
+      "schema_version": "1.0",
+      "spec_id": "20f3293644c0",
+      "stale_scenarios": [],
+      "total_scenarios": 4,
+      "version": 2
+    },
+    "factsRecord": {
+      "by": [
+        "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
+        "0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2"
+      ],
+      "facts_id": "f1830b46947f",
+      "schema_version": "1.0",
+      "spec_id": "20f3293644c0",
+      "text": "The contractor pushed the repository with pure ASCII code and passing tests on calendar day 3, well within the 7-day requirement."
+    },
+    "rulingRecord": {
+      "canary_pass": true,
+      "facts_id": "f1830b46947f",
+      "schema_version": "1.0",
+      "spec_hash": "ca1a92e7a869960991fd9be2c797b3a8c21b6dfe0a11d7e4292bdad1bcd5571c",
+      "spec_id": "20f3293644c0",
+      "verdict": "DELIVERED"
+    },
+    "consumerSettledVerdict": "DELIVERED"
+  }
+}
