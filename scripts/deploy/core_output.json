@@ -1,0 +1,42 @@
+{
+  "network": "studionet",
+  "chainId": 61999,
+  "deployer": "0x74b667c1eD58C4EebFaF964F87a12c35c49261DB",
+  "contractAddress": "0x9bE44666E74A92371bae1f33B1a1AcE091FFab7E",
+  "deployTxHash": "0xd541f981a4193623eea4f673c1dfc1e3c43a64bad0528f74b1c170c332f17259",
+  "specId": "b839e9f46515",
+  "createTxHash": "0x89ddcbf658d4c0b502cb13e4c92c8b2392c0e19b146add13d730c0f1107e08a4",
+  "addScenarioTxHash": "0xe1257a120c51d18f924e8723578f33ddf554ec90e7bf29e5711547263681f821",
+  "runScenarioTxHash": "0x2f42bc868743bbf54911ef4fbfaec3f4ad9db0d2507f31bf359a1fe8097723fa",
+  "runScenarioLatencySec": "23.65",
+  "spec": {
+    "author": "0x74b667c1eD58C4EebFaF964F87a12c35c49261DB",
+    "clause": "The contractor shall deliver the repository with pure ASCII code and passing tests within 7 calendar days of contract creation.",
+    "labels": [
+      "DELIVERED",
+      "BREACH"
+    ],
+    "n_scenarios": 0,
+    "parties": [
+      "0x74b667c1eD58C4EebFaF964F87a12c35c49261DB"
+    ],
+    "schema_version": "1.0",
+    "signed": [],
+    "spec_hash": "",
+    "spec_id": "b839e9f46515",
+    "status": "DRAFT",
+    "title": "Software Delivery Milestone 1",
+    "version": 1
+  },
+  "scenarioResult": {
+    "expected": "DELIVERED",
+    "label": "DELIVERED",
+    "matches": true,
+    "n": 1,
+    "proposer": "0x74b667c1eD58C4EebFaF964F87a12c35c49261DB",
+    "ran_version": 1,
+    "schema_version": "1.0",
+    "spec_id": "b839e9f46515",
+    "text": "The contractor delivers the complete pure ASCII codebase with all tests passing on day 4."
+  }
+}
