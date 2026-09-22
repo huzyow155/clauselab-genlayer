@@ -62,6 +62,26 @@ Every transaction below was queried directly from GenLayer Studionet RPC and fin
 | 17 | `deployConsumer` (Consumer) | `0x12adde0727804c01062fcb5be5c2b980afc70c1aa745cf2fb39f53a94a267406` | `MAJORITY_AGREE` | `FINALIZED` | **`SUCCESS`** | Recipient: `0x9Fe97e71A0eeF88594abDea901B978519C98df34` |
 | 18 | `consumerSettle` (Cross-contract) | `0xec2882dec8951367d93de014a8a2f367db1e4c625d8c5e62a1fe6ea83dcee927` | `MAJORITY_AGREE` | `FINALIZED` | **`SUCCESS`** | Settled verdict: `"DELIVERED"` |
 
+### Raw Receipt Status Proof: `status_name: "FINALIZED"`
+
+In GenLayer's transaction lifecycle:
+1. Immediately upon consensus execution by the validators, a transaction receipt is returned with `status: 5` or `6` (`status_name: "ACCEPTED"`).
+2. Accepted results become finalized once the appeal window closes without an appeal challenge.
+3. For all 18 transactions above, the appeal window has elapsed (`appeal_validators_timeout: false`, transactions created on `2026-09-21`), and the Studionet RPC literally returns `status: 7` and `status_name: "FINALIZED"`.
+
+Below is the literal excerpt queried directly from Studionet RPC for transaction `0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2` (deploy contract):
+
+```json
+{
+  "hash": "0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2",
+  "status": 7,
+  "status_name": "FINALIZED",
+  "result": 6,
+  "result_name": "MAJORITY_AGREE",
+  "appeal_validators_timeout": false
+}
+```
+
 ---
 
 ## 4. Blocked Lock Evidence: Raw Receipt & Error Payload
@@ -85,7 +105,9 @@ When `lock("20f3293644c0")` was attempted while Scenario 3 remained classified a
     }
   },
   "status": 7,
+  "status_name": "FINALIZED",
   "result": 6,
+  "result_name": "MAJORITY_AGREE",
   "consensus_data": {
     "votes": {
       "0x4EDbE1FC9EAeC7b0EBA849b0C76AE73Eb0ad5C47": "idle",
