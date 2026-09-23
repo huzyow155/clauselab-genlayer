@@ -1,9 +1,9 @@
 # ClauseLab: Pre-Signing Contract Ambiguity Detection & Canary Calibration
 
-ClauseLab is a standalone GenLayer Intelligent Contract and frontend DApp that surfaces ambiguity in natural language agreements **before signing**. It holds no funds, implements no escrow, and interprets clauses against stipulated facts evaluated by validator consensus.
+ClauseLab is a standalone GenLayer Intelligent Contract that surfaces ambiguity in natural language agreements **before signing**. It holds no funds, implements no escrow, and interprets clauses against stipulated facts evaluated by validator consensus.
 
-- **Live DApp Application**: [https://clauselab-genlayer.vercel.app](https://clauselab-genlayer.vercel.app)
-- **GitHub Repository**: [https://github.com/huzyow155/clauselab-genlayer](https://github.com/huzyow155/clauselab-genlayer)
+The dApp built on this contract, Agreement Studio, lives in a separate repository: https://github.com/huzyow155/agreement-studio-genlayer
+
 - **Deployed Contract (GenLayer Studionet, Chain ID `61999`)**: [`0xf227D68595178A2192888c85E3550fEff4b79406`](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406)
 - **Consumer Contract**: [`0x9Fe97e71A0eeF88594abDea901B978519C98df34`](https://explorer-studio.genlayer.com/address/0x9Fe97e71A0eeF88594abDea901B978519C98df34)
 - **Network RPC**: `https://studio.genlayer.com/api`
@@ -112,32 +112,7 @@ node scripts/deploy/run_live_evidence.js
 ```
 Full transaction receipts and leader execution results are detailed in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
----
 
-## Frontend Web Application
-
-The repository includes a modern React 19 + TypeScript + Tailwind CSS DApp configured for GenLayer Studionet.
-
-### Running Frontend Locally
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-### Building for Production
-```powershell
-cd frontend
-npm run build
-```
-
-### Environment Configuration
-The frontend connects by default to the verified contract on GenLayer Studionet (`61999`):
-- `VITE_CONTRACT_ADDRESS=0xf227D68595178A2192888c85E3550fEff4b79406`
-- `VITE_CHAIN_ID=61999`
-- `VITE_RPC_URL=https://studio.genlayer.com/api`
-
----
 
 ## Integration Example (Consumer Contract)
 
@@ -184,15 +159,10 @@ class ClauseLabConsumer(gl.Contract):
 
 ---
 
-## Web Application & Future Roadmap
+## Future Roadmap
 
-The interactive web application is now live at [https://clauselab-genlayer.vercel.app](https://clauselab-genlayer.vercel.app), providing:
-- Full browser interface to view specs, invite counterparties, and visualize the green/red scenario matrix.
-- Adversarial scenario runner and ambiguity detector with real validator consensus feedback.
-- Pre-condition locking verification, amendment cycles, and dual-party dispute fact stipulation.
-- Canary calibration view displaying verdict, canary pass status, and cryptographic spec digest.
-
-Future roadmap items:
+A companion frontend application ("Agreement Studio") is maintained in [https://github.com/huzyow155/agreement-studio-genlayer](https://github.com/huzyow155/agreement-studio-genlayer).
+Additional planned contract extensions:
 - Interactive countersuit and adversary scenario generator.
 - Dedicated escrow contracts programmatically bound to the locked `spec_hash`.
 
