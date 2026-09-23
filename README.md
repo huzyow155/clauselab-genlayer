@@ -9,7 +9,6 @@ The dApp built on this contract, Agreement Studio, lives in a separate repositor
 - **Network RPC**: `https://studio.genlayer.com/api`
 - **Block Explorer**: [https://explorer-studio.genlayer.com/](https://explorer-studio.genlayer.com/)
 - Full on-chain proof, transaction table, and raw receipts are documented in [docs/VERIFICATION.md](docs/VERIFICATION.md).
-*(Earlier deployment address `0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2` is superseded).*
 
 ---
 
