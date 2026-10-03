@@ -53,10 +53,12 @@ GenLayer enables **Intelligent Contracts** written in Python executed inside a s
 | `run_scenario` | Single LLM prompt classifying scenario against clause | Exact canonical label (e.g. `"DELIVERED"`, `"BREACH"`, or `"UNDECIDABLE"`) | `gl.eq_principle.strict_eq` | Free-text reasoning varies across model runs; strict equality on clean enums achieves validator consensus. |
 | `adjudicate` | 1. Canary prompt on held-back scenario<br>2. Ruling prompt on disputed facts | Canonical string: `"VERDICT\|CANARY_PASS"` (e.g. `"DELIVERED\|1"` or `"UNRELIABLE\|0"`) | `gl.eq_principle.strict_eq` | Combines substantive ruling with canary pass flag in a single atomic comparison across all nodes. |
 
-### Measured On-Chain Consensus Latency
-- **Scenario Ambiguity Classification (`run_scenario`)**: typical ~12s (`11.85s` live on studionet)
-- **Dispute Adjudication with Canary (`adjudicate`)**: typical ~28s (`28.47s` live on studionet)
-- **Standard State Writes (`create_spec`, `amend`, `sign`, `lock`, `confirm`)**: ~2.8s – ~3.8s
+### Verified On-Chain Consensus Timing
+- **Total Workflow Execution**: Measured at **193.6s (~3.23 minutes)** across 16 consecutive transactions on Studionet (~12.1s average per transaction).
+- **Estimated Range by Operation Type**:
+  - Scenario Ambiguity Classification (`run_scenario`): ~12s – ~25s (validators evaluate LLM classification prompt)
+  - Dispute Adjudication with Canary (`adjudicate`): ~25s – ~35s (validators evaluate dual LLM prompts: canary + dispute facts)
+  - Standard State Writes (`create_spec`, `amend`, `sign`, `lock`, `confirm`): ~3s – ~8s
 
 ---
 
