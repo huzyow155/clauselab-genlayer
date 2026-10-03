@@ -190,7 +190,7 @@ class ClauseLabSim:
             raise ValueError("unknown facts")
         f = json.loads(self.facts[k])
         if self.current_sender in f["by"]:
-            raise ValueError("cannot confirm your own facts")
+            raise ValueError("party has already confirmed these facts")
         f["by"].append(self.current_sender)
         self.facts[k] = _canon(f)
 
@@ -459,7 +459,7 @@ class TestLayer2Mocked(unittest.TestCase):
         # Party A attempts to confirm their own facts -> fails
         with self.assertRaises(ValueError) as ctx1:
             sim.confirm_facts(sid, fid)
-        self.assertIn("cannot confirm your own facts", str(ctx1.exception))
+        self.assertIn("party has already confirmed these facts", str(ctx1.exception))
 
         # Attempting to adjudicate unconfirmed facts -> fails
         with self.assertRaises(ValueError) as ctx2:
