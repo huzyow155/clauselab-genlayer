@@ -68,6 +68,11 @@ def _canary_id(spec_hash, facts_hash, scenarios):
     return cands[int(_sha(spec_hash + facts_hash)[:8], 16) % len(cands)]
 
 
+def _scenario_suite_digest(scenarios) -> str:
+    tests = [[sc["n"], sc.get("text", ""), sc["expected"]] for sc in sorted(scenarios, key=lambda x: x["n"])]
+    return _sha(_canon(tests))
+
+
 def _spec_hash(clause, labels, scenarios):
     tests = [[sc["n"], sc["text"], sc["expected"]] for sc in sorted(scenarios, key=lambda x: x["n"])]
     return _sha(_canon({"clause": clause, "labels": labels, "tests": tests}))
@@ -82,11 +87,17 @@ def _lock_problems(spec, scenarios):
         p.append("need at least 4 scenarios")
     if len(set(sc["expected"] for sc in scenarios)) < 2:
         p.append("need at least 2 distinct expected labels")
+    current_digest = _scenario_suite_digest(scenarios)
+    signed_map = spec.get("signed", {})
+    if isinstance(signed_map, list):
+        signed_map = {}
     for party in spec["parties"]:
         if not any(sc["proposer"] == party for sc in scenarios):
             p.append("party has proposed no scenario: " + party)
-        if party not in spec["signed"]:
+        if party not in signed_map:
             p.append("party has not signed: " + party)
+        elif signed_map[party] != current_digest:
+            p.append("party %s must re-sign: scenario suite changed since their last signature" % party)
     for sc in scenarios:
         if sc.get("ran_version") != v:
             p.append("scenario %d not run at current version" % sc["n"])
@@ -168,7 +179,7 @@ class ClauseLab(gl.Contract):
             "version": 1,
             "status": "DRAFT",
             "parties": [author],
-            "signed": [],
+            "signed": {},
             "n_scenarios": 0,
             "spec_hash": "",
         }
@@ -322,7 +333,7 @@ class ClauseLab(gl.Contract):
 
         spec["clause"] = new_clause
         spec["version"] = int(spec["version"]) + 1
-        spec["signed"] = []
+        spec["signed"] = {}
         self.specs[spec_id] = _canon(spec)
 
     @gl.public.write
@@ -338,10 +349,21 @@ class ClauseLab(gl.Contract):
         if sender not in spec["parties"]:
             raise gl.vm.UserError("sender is not a party")
 
-        if sender in spec["signed"]:
-            raise gl.vm.UserError("party has already signed current version")
+        scs = []
+        for i in range(1, int(spec["n_scenarios"]) + 1):
+            k = spec_id + ":" + str(i)
+            if k in self.scenarios:
+                scs.append(json.loads(self.scenarios[k]))
+        current_digest = _scenario_suite_digest(scs)
 
-        spec["signed"].append(sender)
+        signed_map = spec.get("signed", {})
+        if isinstance(signed_map, list):
+            signed_map = {}
+        if signed_map.get(sender) == current_digest:
+            raise gl.vm.UserError("party has already signed current scenario suite")
+
+        signed_map[sender] = current_digest
+        spec["signed"] = signed_map
         self.specs[spec_id] = _canon(spec)
 
     @gl.public.write
@@ -384,6 +406,9 @@ class ClauseLab(gl.Contract):
 
         facts_id = _sha(text)[:12]
         k = spec_id + ":" + facts_id
+        if k in self.facts:
+            raise gl.vm.UserError("facts with this id already exist - confirm the existing record instead of restipulating")
+
         rec = {
             "schema_version": SCHEMA_VERSION,
             "spec_id": spec_id,
@@ -532,6 +557,7 @@ class ClauseLab(gl.Contract):
                     green.append(i)
 
         problems = _lock_problems(spec, scs)
+        current_digest = _scenario_suite_digest(scs)
 
         rep = {
             "schema_version": SCHEMA_VERSION,
@@ -544,8 +570,21 @@ class ClauseLab(gl.Contract):
             "label_distribution": dist,
             "ready_to_lock": len(problems) == 0,
             "lock_problems": problems,
+            "scenario_suite_digest": current_digest,
         }
         return _canon(rep)
+
+    @gl.public.view
+    def get_scenario_suite_digest(self, spec_id: str) -> str:
+        if spec_id not in self.specs:
+            return ""
+        spec = json.loads(self.specs[spec_id])
+        scs = []
+        for i in range(1, int(spec["n_scenarios"]) + 1):
+            k = spec_id + ":" + str(i)
+            if k in self.scenarios:
+                scs.append(json.loads(self.scenarios[k]))
+        return _scenario_suite_digest(scs)
 
     @gl.public.view
     def get_ruling(self, spec_id: str, facts_id: str) -> str:

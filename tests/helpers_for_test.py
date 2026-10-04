@@ -55,6 +55,10 @@ def _canary_id(spec_hash, facts_hash, scenarios):
         return None
     return cands[int(_sha(spec_hash + facts_hash)[:8], 16) % len(cands)]
 
+def _scenario_suite_digest(scenarios):
+    tests = [[sc["n"], sc.get("text", ""), sc["expected"]] for sc in sorted(scenarios, key=lambda x: x["n"])]
+    return _sha(_canon(tests))
+
 def _spec_hash(clause, labels, scenarios):
     tests = [[sc["n"], sc["text"], sc["expected"]] for sc in sorted(scenarios, key=lambda x: x["n"])]
     return _sha(_canon({"clause": clause, "labels": labels, "tests": tests}))
@@ -68,11 +72,17 @@ def _lock_problems(spec, scenarios):
         p.append("need at least 4 scenarios")
     if len(set(sc["expected"] for sc in scenarios)) < 2:
         p.append("need at least 2 distinct expected labels")
+    current_digest = _scenario_suite_digest(scenarios)
+    signed_map = spec.get("signed", {})
+    if isinstance(signed_map, list):
+        signed_map = {}
     for party in spec["parties"]:
         if not any(sc["proposer"] == party for sc in scenarios):
             p.append("party has proposed no scenario: " + party)
-        if party not in spec["signed"]:
+        if party not in signed_map:
             p.append("party has not signed: " + party)
+        elif signed_map[party] != current_digest:
+            p.append("party %s must re-sign: scenario suite changed since their last signature" % party)
     for sc in scenarios:
         if sc.get("ran_version") != v:
             p.append("scenario %d not run at current version" % sc["n"])

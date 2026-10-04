@@ -3,7 +3,7 @@ import json
 import hashlib
 from tests.helpers_for_test import (
     _sha, _canon, _parse, _parse_labels, _clean_label,
-    _anchor_ids, _canary_id, _spec_hash, _lock_problems,
+    _anchor_ids, _canary_id, _spec_hash, _lock_problems, _scenario_suite_digest,
     _prompt, _scenario_core, _adjudicate_core, _ruling_string
 )
 
@@ -39,7 +39,7 @@ class ClauseLabSim:
             "version": 1,
             "status": "DRAFT",
             "parties": [author],
-            "signed": [],
+            "signed": {},
             "n_scenarios": 0,
             "spec_hash": "",
         }
@@ -121,7 +121,7 @@ class ClauseLabSim:
             raise ValueError("clause exceeds 2000 characters")
         spec["clause"] = new_clause
         spec["version"] += 1
-        spec["signed"] = []
+        spec["signed"] = {}
         self.specs[spec_id] = _canon(spec)
 
     def sign(self, spec_id):
@@ -132,9 +132,19 @@ class ClauseLabSim:
             raise ValueError("cannot sign after lock")
         if self.current_sender not in spec["parties"]:
             raise ValueError("sender is not a party")
-        if self.current_sender in spec["signed"]:
-            raise ValueError("already signed current version")
-        spec["signed"].append(self.current_sender)
+        scs = []
+        for i in range(1, int(spec["n_scenarios"]) + 1):
+            k = f"{spec_id}:{i}"
+            if k in self.scenarios:
+                scs.append(json.loads(self.scenarios[k]))
+        current_digest = _scenario_suite_digest(scs)
+        signed_map = spec.get("signed", {})
+        if isinstance(signed_map, list):
+            signed_map = {}
+        if signed_map.get(self.current_sender) == current_digest:
+            raise ValueError("already signed current scenario suite")
+        signed_map[self.current_sender] = current_digest
+        spec["signed"] = signed_map
         self.specs[spec_id] = _canon(spec)
 
     def lock(self, spec_id):
@@ -167,6 +177,8 @@ class ClauseLabSim:
             raise ValueError("facts text exceeds 1500 characters")
         facts_id = _sha(text)[:12]
         k = f"{spec_id}:{facts_id}"
+        if k in self.facts:
+            raise ValueError("facts with this id already exist - confirm the existing record instead of restipulating")
         rec = {
             "schema_version": "1.0",
             "spec_id": spec_id,
@@ -208,7 +220,7 @@ class ClauseLabSim:
             raise ValueError("facts unconfirmed: need at least 2 distinct parties")
         rk = f"{spec_id}:{facts_id}"
         if rk in self.rulings:
-            raise ValueError("ruling already exists")
+            raise ValueError("ruling already exists for these facts")
         scs = [json.loads(self.scenarios[f"{spec_id}:{i}"]) for i in range(1, int(spec["n_scenarios"]) + 1)]
         ruling_str = _adjudicate_core(self.mock_llm_fn, spec["clause"], spec["labels"], scs, spec["spec_hash"], f["text"])
         parts = ruling_str.split("|")
@@ -385,7 +397,7 @@ class TestLayer2Mocked(unittest.TestCase):
 
         spec_after = json.loads(sim.specs[sid])
         self.assertEqual(spec_after["version"], 2)
-        self.assertEqual(spec_after["signed"], [], "Signatures must be cleared on amend")
+        self.assertEqual(spec_after["signed"], {}, "Signatures must be cleared on amend")
 
         # Lock must now fail because scenarios were ran at version 1, not current version 2
         with self.assertRaises(ValueError) as ctx:
@@ -471,6 +483,162 @@ class TestLayer2Mocked(unittest.TestCase):
         sim.confirm_facts(sid, fid)
         r = sim.adjudicate(sid, fid)
         self.assertTrue(r.startswith("DELIVERED|1") or r.startswith("BREACH|1") or r.startswith("UNRELIABLE"))
+
+    def test_bug1_signature_binds_scenario_suite(self):
+        def honest_llm(p):
+            return {"label": "DELIVERED" if "Good" in p else "BREACH"}
+
+        sim = ClauseLabSim(honest_llm)
+        sim.set_sender(self.party_a)
+        sid = sim.create_spec("Delivery", "Clause text", "DELIVERED, BREACH")
+        sim.invite(sid, self.party_b)
+
+        sim.set_sender(self.party_a)
+        sim.add_scenario(sid, "Good 1", "DELIVERED")
+        sim.add_scenario(sid, "Bad 1", "BREACH")
+        sim.set_sender(self.party_b)
+        sim.add_scenario(sid, "Good 2", "DELIVERED")
+        sim.add_scenario(sid, "Bad 2", "BREACH")
+
+        for i in range(1, 5):
+            sim.run_scenario(sid, i)
+
+        # Both parties sign for current 4-scenario suite
+        sim.set_sender(self.party_a)
+        sim.sign(sid)
+        sim.set_sender(self.party_b)
+        sim.sign(sid)
+
+        # Lock is valid now
+        spec = json.loads(sim.specs[sid])
+        scs = [json.loads(sim.scenarios[f"{sid}:{i}"]) for i in range(1, 5)]
+        self.assertEqual(_lock_problems(spec, scs), [])
+
+        # Party A adds a 5th scenario -> scenario suite digest changes!
+        sim.set_sender(self.party_a)
+        sim.add_scenario(sid, "Good 3 extra", "DELIVERED")
+        sim.run_scenario(sid, 5)
+
+        spec = json.loads(sim.specs[sid])
+        scs = [json.loads(sim.scenarios[f"{sid}:{i}"]) for i in range(1, 6)]
+        problems = _lock_problems(spec, scs)
+
+        # Both parties' signatures are now stale relative to the 5-scenario suite!
+        self.assertTrue(any("must re-sign: scenario suite changed" in p and self.party_a in p for p in problems))
+        self.assertTrue(any("must re-sign: scenario suite changed" in p and self.party_b in p for p in problems))
+
+        with self.assertRaises(ValueError) as ctx:
+            sim.lock(sid)
+        self.assertIn("must re-sign: scenario suite changed since their last signature", str(ctx.exception))
+
+        # Parties re-sign with the new suite
+        sim.set_sender(self.party_a)
+        sim.sign(sid)
+        sim.set_sender(self.party_b)
+        sim.sign(sid)
+
+        # Lock now succeeds
+        sh = sim.lock(sid)
+        self.assertTrue(len(sh) > 0)
+        spec_locked = json.loads(sim.specs[sid])
+        self.assertEqual(spec_locked["status"], "LOCKED")
+
+    def test_bug2_identical_text_restipulation_rejected(self):
+        def honest_llm(p):
+            return {"label": "DELIVERED" if "Good" in p else "BREACH"}
+
+        sim = ClauseLabSim(honest_llm)
+        sim.set_sender(self.party_a)
+        sid = sim.create_spec("Delivery", "Clause text", "DELIVERED, BREACH")
+        sim.invite(sid, self.party_b)
+
+        sim.set_sender(self.party_a)
+        sim.add_scenario(sid, "Good 1", "DELIVERED")
+        sim.add_scenario(sid, "Bad 1", "BREACH")
+        sim.set_sender(self.party_b)
+        sim.add_scenario(sid, "Good 2", "DELIVERED")
+        sim.add_scenario(sid, "Bad 2", "BREACH")
+
+        for i in range(1, 5):
+            sim.run_scenario(sid, i)
+
+        sim.set_sender(self.party_a)
+        sim.sign(sid)
+        sim.set_sender(self.party_b)
+        sim.sign(sid)
+        sim.lock(sid)
+
+        # Party A stipulates facts
+        sim.set_sender(self.party_a)
+        dispute_text = "Delivery occurred on day 2 before 5 PM."
+        fid = sim.stipulate_facts(sid, dispute_text)
+
+        # Party B confirms
+        sim.set_sender(self.party_b)
+        sim.confirm_facts(sid, fid)
+
+        facts_record_before = json.loads(sim.facts[f"{sid}:{fid}"])
+        self.assertEqual(sorted(facts_record_before["by"]), sorted([self.party_a, self.party_b]))
+
+        # Attempt duplicate restipulation with identical text by Party A
+        sim.set_sender(self.party_a)
+        with self.assertRaises(ValueError) as ctx:
+            sim.stipulate_facts(sid, dispute_text)
+        self.assertIn("facts with this id already exist - confirm the existing record instead of restipulating", str(ctx.exception))
+
+        # Attempt duplicate restipulation with identical text by Party B
+        sim.set_sender(self.party_b)
+        with self.assertRaises(ValueError) as ctx2:
+            sim.stipulate_facts(sid, dispute_text)
+        self.assertIn("facts with this id already exist - confirm the existing record instead of restipulating", str(ctx2.exception))
+
+        # Verify confirmations record was NOT wiped or overwritten
+        facts_record_after = json.loads(sim.facts[f"{sid}:{fid}"])
+        self.assertEqual(sorted(facts_record_after["by"]), sorted([self.party_a, self.party_b]))
+
+    def test_bug2_re_adjudication_rejected(self):
+        def honest_llm(p):
+            return {"label": "DELIVERED" if "Good" in p else "BREACH"}
+
+        sim = ClauseLabSim(honest_llm)
+        sim.set_sender(self.party_a)
+        sid = sim.create_spec("Delivery", "Clause text", "DELIVERED, BREACH")
+        sim.invite(sid, self.party_b)
+
+        sim.set_sender(self.party_a)
+        sim.add_scenario(sid, "Good 1", "DELIVERED")
+        sim.add_scenario(sid, "Bad 1", "BREACH")
+        sim.set_sender(self.party_b)
+        sim.add_scenario(sid, "Good 2", "DELIVERED")
+        sim.add_scenario(sid, "Bad 2", "BREACH")
+
+        for i in range(1, 5):
+            sim.run_scenario(sid, i)
+
+        sim.set_sender(self.party_a)
+        sim.sign(sid)
+        sim.set_sender(self.party_b)
+        sim.sign(sid)
+        sim.lock(sid)
+
+        sim.set_sender(self.party_a)
+        fid = sim.stipulate_facts(sid, "Delivery occurred on day 2.")
+        sim.set_sender(self.party_b)
+        sim.confirm_facts(sid, fid)
+
+        # First adjudication succeeds
+        r1 = sim.adjudicate(sid, fid)
+        self.assertTrue(len(r1) > 0)
+        ruling_before = sim.rulings[f"{sid}:{fid}"]
+
+        # Second adjudication attempt must be rejected
+        with self.assertRaises(ValueError) as ctx:
+            sim.adjudicate(sid, fid)
+        self.assertIn("ruling already exists for these facts", str(ctx.exception))
+
+        # Stored ruling remains identical
+        ruling_after = sim.rulings[f"{sid}:{fid}"]
+        self.assertEqual(ruling_before, ruling_after)
 
 if __name__ == '__main__':
     unittest.main()

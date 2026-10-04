@@ -94,7 +94,9 @@ To prevent storage serialization bugs or integer-type mismatch issues across Gen
        "version": 1,
        "status": "DRAFT",
        "parties": ["0x74b667c1ed58c4eebfaf964f87a12c35c49261db"],
-       "signed": [],
+       "signed": {
+         "0x74b667c1ed58c4eebfaf964f87a12c35c49261db": "0e0fada7585ed5709f4ff724fab4e9066a65352784714c88adbdbd619db7268e"
+       },
        "n_scenarios": 4,
        "spec_hash": "a4f89d..."
      }
@@ -152,7 +154,49 @@ To prevent storage serialization bugs or integer-type mismatch issues across Gen
 
 ---
 
-## 5. Security & Prompt Containment
+## 5. Scenario Suite Binding & Signature Protection (Bug 1 Fix)
+
+### The Threat
+In agreement creation, requiring both parties to sign before locking prevents unilateral modification. However, if signatures only record that a party signed the clause text without binding to the active test suite, an adversarial party could propose benign scenarios, obtain the counterparty's signature, and subsequently add new, unapproved scenarios before calling `lock`.
+
+### The Mechanism
+1. **Deterministic Scenario Suite Digest**:
+   Every spec's scenario suite is canonicalized and hashed via SHA-256:
+   ```python
+   def _scenario_suite_digest(scenarios) -> str:
+       tests = [[sc["n"], sc.get("text", ""), sc["expected"]] for sc in sorted(scenarios, key=lambda x: x["n"])]
+       return _sha(_canon(tests))
+   ```
+   - **Canonical Form**: A list of 3-element lists `[n, text, expected]` sorted in ascending numerical order by `n`.
+   - **Canonical Serialization**: JSON string serialized via `_canon` with sorted keys and tight delimiters `(separators=(",", ":"))` in UTF-8.
+   - **Digest Output**: 64-character lowercase hexadecimal SHA-256 string.
+2. **Signature State**:
+   `spec["signed"]` is stored as a mapping `{party_address: suite_digest_at_signing_time}`.
+3. **Lock Enforcement**:
+   `_lock_problems` verifies for every party in `spec["parties"]`:
+   - The party appears in `signed`.
+   - The party's stored digest matches the **current** scenario suite digest (`signed[party] == current_digest`).
+   - If a party signed an older suite digest (e.g. before a new scenario was added), `_lock_problems` reports:
+     `"party <address> must re-sign: scenario suite changed since their last signature"`
+4. **Re-Signing Flow**:
+   Calling `sign(spec_id)` computes the current digest at execution time and records `{party: current_digest}`. If a party attempts to re-sign the exact same digest, it raises `"party has already signed current scenario suite"`.
+
+---
+
+## 6. Anti-Restipulation & Re-Adjudication Immutability (Bug 2 Fix)
+
+### The Threat
+`facts_id` is deterministically derived from the facts text (`_sha(text)[:12]`). If `stipulate_facts` allowed overwriting an existing `spec_id:facts_id` record, an adversarial party could re-submit identical text to reset the `by` confirmations list back to `[sender]`, stripping away the counterparty's prior confirmation. Similarly, if `adjudicate` allowed re-running against an existing key, prior canary rulings could be repeatedly queried or overwritten.
+
+### The Mechanism
+1. **Restipulation Rejection**:
+   `stipulate_facts(spec_id, text)` checks if `spec_id:facts_id` already exists in `self.facts`. If present, it raises `UserError("facts with this id already exist - confirm the existing record instead of restipulating")`. Confirmations on existing records are permanently preserved.
+2. **Re-Adjudication Rejection**:
+   `adjudicate(spec_id, facts_id)` checks if `spec_id:facts_id` already exists in `self.rulings`. If present, it raises `UserError("ruling already exists for these facts")`. To obtain a new ruling, the parties must stipulate a new or updated facts text that generates a distinct `facts_id`.
+
+---
+
+## 7. Security & Prompt Containment
 
 All user-supplied text (scenarios and stipulated facts) is untrusted user data.
 1. Bounded byte lengths are strictly enforced before storage (`clause <= 2000`, `title <= 200`, `scenario <= 600`, `facts <= 1500`).
@@ -162,7 +206,8 @@ All user-supplied text (scenarios and stipulated facts) is untrusted user data.
 
 ---
 
-## 6. Honest Limitations
+## 8. Honest Limitations
 1. **Canary as a Signal, Not a Proof**: One held-back canary scenario provides an in-band sanity check against gross drift or hallucination, but does not guarantee the model will correctly reason about all subtle nuances in the disputed facts.
 2. **Anchor Bias**: While few-shot settled examples dramatically increase cross-validator reproducibility, they can introduce subtle inductive bias if chosen scenarios lean disproportionately toward one interpretation.
 3. **No External Fact Finding**: ClauseLab adjudicates solely on what the parties mutually stipulate and confirm. It does not pull live APIs or confirm whether real-world delivery actually occurred.
+

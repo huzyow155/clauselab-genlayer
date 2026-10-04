@@ -1,7 +1,7 @@
 import unittest
 from tests.helpers_for_test import (
     _parse_labels, _anchor_ids, _canary_id, _spec_hash, _lock_problems,
-    _clean_label, _ruling_string, _prompt, RESERVED, LABEL_CHARS
+    _scenario_suite_digest, _clean_label, _ruling_string, _prompt, RESERVED, LABEL_CHARS
 )
 
 class TestLayer1Pure(unittest.TestCase):
@@ -115,8 +115,14 @@ class TestLayer1Pure(unittest.TestCase):
         p = _lock_problems(spec, scenarios)
         self.assertIn("party has not signed: " + party_b, p)
 
+        # 5b. Stale signature (suite digest mismatch)
+        digest = _scenario_suite_digest(scenarios)
+        spec["signed"] = {party_a: "old_digest_12345", party_b: digest}
+        p = _lock_problems(spec, scenarios)
+        self.assertIn(f"party {party_a} must re-sign: scenario suite changed since their last signature", p)
+
         # 6. Scenario not run at current version (stale)
-        spec["signed"] = [party_a, party_b]
+        spec["signed"] = {party_a: digest, party_b: digest}
         scenarios[0]["ran_version"] = 0
         p = _lock_problems(spec, scenarios)
         self.assertIn("scenario 1 not run at current version", p)
