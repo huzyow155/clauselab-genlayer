@@ -3,13 +3,17 @@
   "chainId": 61999,
   "rpcUrl": "https://studio.genlayer.com/api",
   "explorerBaseUrl": "https://explorer-studio.genlayer.com/address/",
-  "contractAddress": "0xf227D68595178A2192888c85E3550fEff4b79406",
-  "deployTxHash": "0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2",
-  "consumerContractAddress": "0x9Fe97e71A0eeF88594abDea901B978519C98df34",
-  "consumerDeployTxHash": "0x12adde0727804c01062fcb5be5c2b980afc70c1aa745cf2fb39f53a94a267406",
-  "commitHash": "49ba7c2",
-  "sourceSha256": "984ec7509168e04dcb615f44c198648d3594665f1f5daf7ee15bc128e83b9f10",
+  "contractAddress": "0x13ac18867642fdCd740EA14c6EA7588abdCb7F73",
+  "deployTxHash": "0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec",
+  "consumerContractAddress": "0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B",
+  "consumerDeployTxHash": "0xc6654e301e3f6599bdf76379c786804b7cc9e20051119aba1b18e8155d635d00",
+  "commitHash": "1863d3e",
+  "sourceSha256": "812f70508bb321c0b27664f51055293fa08d5f737054111037d1a3294f034554",
   "supersededAddresses": [
+    {
+      "address": "0xf227D68595178A2192888c85E3550fEff4b79406",
+      "reason": "Superseded by Oct 4 2026 steward-requested security upgrade (Bug 1 scenario suite binding + Bug 2 anti-restipulation protections)"
+    },
     {
       "address": "0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2",
       "reason": "Earlier interrupted run superseded by full end-to-end lifecycle run on 0xf227D68595178A2192888c85E3550fEff4b79406"

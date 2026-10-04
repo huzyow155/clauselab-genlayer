@@ -1,0 +1,56 @@
+{
+  "test": "Bug 2 - Restipulation and Re-adjudication Protection",
+  "contractAddress": "0x13ac18867642fdCd740EA14c6EA7588abdCb7F73",
+  "specId": "024a90ad28fe",
+  "factsId": "c9de95afdad5",
+  "partyA": "0xE93459E8c78397468125a300dd7650c391b2a1D1",
+  "partyB": "0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d",
+  "disputeText": "During July 2026, the provider recorded 99.98% total API uptime, and responded to the single incident alert in 25 minutes.",
+  "txFacts1": "0x6430f3a97029e06eb530e07b94be5d1a65dbf34951c2e6f96ed1e7bf878a8588",
+  "txConfirmB": "0x2378c3d3a1cc5e2ff0b2947ef87718c512164db62088f76ba6c5e98f707bf5c0",
+  "factsBeforeAttempt": {
+    "by": [
+      "0xE93459E8c78397468125a300dd7650c391b2a1D1",
+      "0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d"
+    ],
+    "facts_id": "c9de95afdad5",
+    "schema_version": "1.0",
+    "spec_id": "024a90ad28fe",
+    "text": "During July 2026, the provider recorded 99.98% total API uptime, and responded to the single incident alert in 25 minutes."
+  },
+  "restipulateTx": "0xc6c02af04ba6d7497738644c333dc3e6804b7a0a1289be37e4eaba660f88eba5",
+  "restipulateExecResult": "ERROR",
+  "restipulateError": "Transaction reverted with execution_result: ERROR",
+  "factsAfterAttempt": {
+    "by": [
+      "0xE93459E8c78397468125a300dd7650c391b2a1D1",
+      "0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d"
+    ],
+    "facts_id": "c9de95afdad5",
+    "schema_version": "1.0",
+    "spec_id": "024a90ad28fe",
+    "text": "During July 2026, the provider recorded 99.98% total API uptime, and responded to the single incident alert in 25 minutes."
+  },
+  "confirmationsPreserved": true,
+  "txAdj1": "0x7837b2eacad5e376d7443d8ae55835a80872788b1f10faed5a3b0a751ec90886",
+  "rulingBefore": {
+    "canary_pass": true,
+    "facts_id": "c9de95afdad5",
+    "schema_version": "1.0",
+    "spec_hash": "71887136f5d820cdd7bb14cf814cd5b71ac46ba5aa46359e69ea3c2b56604b13",
+    "spec_id": "024a90ad28fe",
+    "verdict": "COMPLIANT"
+  },
+  "reAdjTx": "0xa4e3fcb2f2cf75596784c0cd16e7b097e93f7a75f45834dc294cc844b944ad16",
+  "reAdjExecResult": "ERROR",
+  "reAdjError": "Transaction reverted with execution_result: ERROR",
+  "rulingAfter": {
+    "canary_pass": true,
+    "facts_id": "c9de95afdad5",
+    "schema_version": "1.0",
+    "spec_hash": "71887136f5d820cdd7bb14cf814cd5b71ac46ba5aa46359e69ea3c2b56604b13",
+    "spec_id": "024a90ad28fe",
+    "verdict": "COMPLIANT"
+  },
+  "rulingUnchanged": true
+}

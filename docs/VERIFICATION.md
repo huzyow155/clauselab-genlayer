@@ -4,18 +4,20 @@
 - **Network**: GenLayer Studionet
 - **Chain ID**: `61999`
 - **JSON-RPC Endpoint**: `https://studio.genlayer.com/api`
-- **Block Explorer**: [https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406)
+- **Block Explorer**: [https://explorer-studio.genlayer.com/address/0x13ac18867642fdCd740EA14c6EA7588abdCb7F73](https://explorer-studio.genlayer.com/address/0x13ac18867642fdCd740EA14c6EA7588abdCb7F73)
 - **Contract Name**: `ClauseLab`
-- **Final Contract Address**: `0xf227D68595178A2192888c85E3550fEff4b79406`
-- **Deploy Transaction**: `0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2`
-- **Consumer Contract Address**: `0x9Fe97e71A0eeF88594abDea901B978519C98df34`
-- **Consumer Deploy Transaction**: `0x12adde0727804c01062fcb5be5c2b980afc70c1aa745cf2fb39f53a94a267406`
+- **Final Contract Address**: `0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`
+- **Deploy Transaction**: `0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec`
+- **Consumer Contract Address**: `0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B`
+- **Consumer Deploy Transaction**: `0xc6654e301e3f6599bdf76379c786804b7cc9e20051119aba1b18e8155d635d00`
 - **Source File**: `contracts/ClauseLab.py`
-- **Source SHA-256**: `984ec7509168e04dcb615f44c198648d3594665f1f5daf7ee15bc128e83b9f10`
-- **ASCII Scan**: Pure ASCII (`PASSED: 19624 bytes`)
+- **Source SHA-256**: `812f70508bb321c0b27664f51055293fa08d5f737054111037d1a3294f034554`
+- **Consumer Source SHA-256**: `0cb11e6c617b8e4686aff24af1f83fbf028350a31f1d95e7465b3e7914dd6438`
+- **ASCII Scan**: Pure ASCII (`PASSED: 21259 bytes`)
 - **GenVM Linter**: 0 errors, 0 warnings
 
 ### Superseded Deployments
+- `0xf227D68595178A2192888c85E3550fEff4b79406`: Prior deployment superseded by Oct 4 2026 steward-requested security upgrade (Bug 1 scenario suite binding + Bug 2 anti-restipulation protections).
 - `0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2`: Earlier interrupted run superseded by full complete lifecycle run on `0xf227D68595178A2192888c85E3550fEff4b79406`.
 - `0x9bE44666E74A92371bae1f33B1a1AcE091FFab7E`: Milestone 1 ClauseLabCore minimal prototype.
 - `0xd4c24cc41dFEa72B7eB313D600Edf09FC9F5C8dc`: Milestone 0 Probe diagnostic contract.
@@ -164,3 +166,66 @@ When `lock("20f3293644c0")` was attempted while Scenario 3 remained classified a
 - **Single LLM Consensus Write (`run_scenario`)**: `11.85s` (typical ~12s)
 - **Dual LLM Consensus Write (`adjudicate` with canary calibration)**: `28.47s` (typical ~28s)
 - **Standard State Writes (`create_spec`, `amend`, `sign`, `lock`, `confirm`)**: `2.8s - 3.8s`
+
+---
+
+## 6. Oct 4 2026 Production-Contract Verification (Bug 1 & Bug 2)
+
+Following steward review (PAPITO, Oct 4 2026), `ClauseLab.py` was updated with two security protections and deployed to Studionet at `0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`.
+
+### 6.1 Source Hash Match Proof
+- **Contract**: `ClauseLab`
+- **Address**: `0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`
+- **Deploy Transaction**: `0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec`
+- **Local Source SHA-256**: `812f70508bb321c0b27664f51055293fa08d5f737054111037d1a3294f034554`
+- **On-Chain Code SHA-256**: `812f70508bb321c0b27664f51055293fa08d5f737054111037d1a3294f034554`
+- **Exact Byte-for-Byte Match**: `true`
+
+- **Consumer Contract**: `ClauseLabConsumer`
+- **Address**: `0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B`
+- **Deploy Transaction**: `0xc6654e301e3f6599bdf76379c786804b7cc9e20051119aba1b18e8155d635d00`
+- **Local Source SHA-256**: `0cb11e6c617b8e4686aff24af1f83fbf028350a31f1d95e7465b3e7914dd6438`
+- **On-Chain Code SHA-256**: `0cb11e6c617b8e4686aff24af1f83fbf028350a31f1d95e7465b3e7914dd6438`
+- **Exact Byte-for-Byte Match**: `true`
+
+### 6.2 Bug 1 Live Production Test (Scenario Suite Binding)
+Tested on Studionet contract `0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`:
+- **Spec ID**: `e09aff7fb734`
+- **Party A**: `0xdDD223cAe3681B7Cb5B41De1B87f341a45030481`
+- **Party B**: `0xc03055cff6b316f90Ef928209832b766531d4a4c`
+- **Initial Suite Digest (4 Scenarios)**: `0e0fada7585ed5709f4ff724fab4e9066a65352784714c88adbdbd619db7268e`
+- **Initial Party A Sign Tx**: `0xe05dad2b88cc83c5348726b63b74c8c0d3bb43632fca4e859abb738d834ea0d9`
+- **Initial Party B Sign Tx**: `0x16067174594a7463f35db2c3d1821c15de3f5fe8be90078927a08d2e54cb54ed`
+- **Pre-Mutation State**: `ready_to_lock: true`, `lock_problems: []`
+- **Scenario 5 Added (Tx)**: `0x63271dc9c77bfa9ac0cea3fdb7c23732ea01eaa87a0f7ea1eb568890769c640b`
+- **Scenario 5 Run (Tx)**: `0x38f429525399973d58f0f542890cf41117dd1551155cc984e7bb3d051b54a539`
+- **Mutated Suite Digest (5 Scenarios)**: `b04d4f847626adbc98fbcfba1282c2e7aad7bfa2608de4f701b7fac6bc6b4574`
+- **Post-Mutation Lock Status**: `ready_to_lock: false`
+- **Lock Problems Reported**:
+  - `"party 0xdDD223cAe3681B7Cb5B41De1B87f341a45030481 must re-sign: scenario suite changed since their last signature"`
+  - `"party 0xc03055cff6b316f90Ef928209832b766531d4a4c must re-sign: scenario suite changed since their last signature"`
+- **Stale Lock Attempt Tx**: `0x2bba25b2997f6ee697401af69a24409e4917fd545d2dd9c6e8764e73edbac834` (Reverted on-chain with `execution_result: ERROR`)
+- **Party A Re-Sign Tx**: `0x9d4326cb04452c8a7c9068e7784649f5761875cf27b13f5d96daea1b88f47b4a`
+- **Party B Re-Sign Tx**: `0x0bd0e6d3a7bd07cb97e00bd57675f37462ef5ae296ff5a3094c9701818fb0ef0`
+- **Post-Resign State**: `ready_to_lock: true`, `lock_problems: []`
+- **Lock Success Tx**: `0x3445ff31d5aa2a43631d468a23091990ac071e62af74336b9c6320a5b8fc1d8c`
+- **Locked Spec Hash**: `91618601478b2ba58cf3803dad44f565692a067828595d7cc2d8e7ebf38a1efa`
+- **Result**: **PASS**
+
+### 6.3 Bug 2 Live Production Test (Restipulation & Re-Adjudication Protection)
+Tested on Studionet contract `0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`:
+- **Spec ID**: `024a90ad28fe`
+- **Party A**: `0xE93459E8c78397468125a300dd7650c391b2a1D1`
+- **Party B**: `0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d`
+- **Stipulate Facts Tx**: `0x6430f3a97029e06eb530e07b94be5d1a65dbf34951c2e6f96ed1e7bf878a8588`
+- **Facts ID**: `c9de95afdad5`
+- **Confirm Facts Tx**: `0x2378c3d3a1cc5e2ff0b2947ef87718c512164db62088f76ba6c5e98f707bf5c0`
+- **Confirmations Record Before Restipulation Attempt**:
+  `["0xE93459E8c78397468125a300dd7650c391b2a1D1", "0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d"]`
+- **Duplicate Restipulation Attempt Tx**: `0xc6c02af04ba6d7497738644c333dc3e6804b7a0a1289be37e4eaba660f88eba5` (Reverted on-chain with `execution_result: ERROR`)
+- **Confirmations Record After Restipulation Attempt**:
+  `["0xE93459E8c78397468125a300dd7650c391b2a1D1", "0x29b8567b0fb75CaC2aa3185BfC745c263EebBC9d"]` (**Preserved Unchanged: true**)
+- **Adjudication 1 Tx**: `0x7837b2eacad5e376d7443d8ae55835a80872788b1f10faed5a3b0a751ec90886` (`verdict: COMPLIANT`, `canary_pass: true`)
+- **Second Adjudication Attempt Tx**: `0xa4e3fcb2f2cf75596784c0cd16e7b097e93f7a75f45834dc294cc844b944ad16` (Reverted on-chain with `execution_result: ERROR`)
+- **Ruling Readback After Second Attempt**: `verdict: COMPLIANT`, `canary_pass: true` (**Preserved Byte-for-Byte: true**)
+- **Result**: **PASS**

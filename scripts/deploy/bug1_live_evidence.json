@@ -1,0 +1,30 @@
+{
+  "test": "Bug 1 - Scenario Suite Binding",
+  "contractAddress": "0x13ac18867642fdCd740EA14c6EA7588abdCb7F73",
+  "specId": "e09aff7fb734",
+  "partyA": "0xdDD223cAe3681B7Cb5B41De1B87f341a45030481",
+  "partyB": "0xc03055cff6b316f90Ef928209832b766531d4a4c",
+  "txCreate": "0x051438f80660a4c83fcd6ee4974f58620140d60ed2d99890c241274534a76848",
+  "txInvite": "0x6be17b17b85acdf1c05c4afb1f692bd3170e8ce92354637aab9f25b4bd1cf889",
+  "txSc1": "0x4e1b1d603df3557b470d1c8e90c304bab6ec80b9c0db9d94fdd5548271fc2b5c",
+  "txSc2": "0x3602809f07af0b7e0d41de4f836e74574caa8c5bc8eec80d5ee2599a54fa2b2e",
+  "txSc3": "0xd153f3fa92205531d20f362fbc5678833e865297343b5cb581d0b161959d8b6c",
+  "txSc4": "0xf017bffcc451f35f6c597c681e3cdb4e90b4a8d3f03279e42df9723295ba44ac",
+  "digest4Scenarios": "0e0fada7585ed5709f4ff724fab4e9066a65352784714c88adbdbd619db7268e",
+  "txSignA1": "0xe05dad2b88cc83c5348726b63b74c8c0d3bb43632fca4e859abb738d834ea0d9",
+  "txSignB1": "0x16067174594a7463f35db2c3d1821c15de3f5fe8be90078927a08d2e54cb54ed",
+  "txSc5": "0x63271dc9c77bfa9ac0cea3fdb7c23732ea01eaa87a0f7ea1eb568890769c640b",
+  "txRun5": "0x38f429525399973d58f0f542890cf41117dd1551155cc984e7bb3d051b54a539",
+  "digest5Scenarios": "b04d4f847626adbc98fbcfba1282c2e7aad7bfa2608de4f701b7fac6bc6b4574",
+  "repAfterSc5_problems": [
+    "party 0xdDD223cAe3681B7Cb5B41De1B87f341a45030481 must re-sign: scenario suite changed since their last signature",
+    "party 0xc03055cff6b316f90Ef928209832b766531d4a4c must re-sign: scenario suite changed since their last signature"
+  ],
+  "txLockAttempt": "0x2bba25b2997f6ee697401af69a24409e4917fd545d2dd9c6e8764e73edbac834",
+  "lockBlockedError": "Transaction reverted on-chain with execution_result: ERROR",
+  "txReSignA": "0x9d4326cb04452c8a7c9068e7784649f5761875cf27b13f5d96daea1b88f47b4a",
+  "txReSignB": "0x0bd0e6d3a7bd07cb97e00bd57675f37462ef5ae296ff5a3094c9701818fb0ef0",
+  "txLockSuccess": "0x3445ff31d5aa2a43631d468a23091990ac071e62af74336b9c6320a5b8fc1d8c",
+  "finalStatus": "LOCKED",
+  "finalSpecHash": "91618601478b2ba58cf3803dad44f565692a067828595d7cc2d8e7ebf38a1efa"
+}
