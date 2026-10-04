@@ -4,8 +4,9 @@ ClauseLab is a standalone GenLayer Intelligent Contract that surfaces ambiguity 
 
 The dApp built on this contract, Agreement Studio, lives in a separate repository: https://github.com/huzyow155/agreement-studio-genlayer
 
-- **Deployed Contract (GenLayer Studionet, Chain ID `61999`)**: [`0xf227D68595178A2192888c85E3550fEff4b79406`](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406)
-- **Consumer Contract**: [`0x9Fe97e71A0eeF88594abDea901B978519C98df34`](https://explorer-studio.genlayer.com/address/0x9Fe97e71A0eeF88594abDea901B978519C98df34)
+- **ClauseLab Contract Address (GenLayer Studionet, Chain ID `61999`)**: [`0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`](https://explorer-studio.genlayer.com/address/0x13ac18867642fdCd740EA14c6EA7588abdCb7F73)
+- **Deploy Transaction**: [`0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec`](https://explorer-studio.genlayer.com/tx/0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec)
+- **ClauseLabConsumer Address**: [`0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B`](https://explorer-studio.genlayer.com/address/0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B)
 - **Network RPC**: `https://studio.genlayer.com/api`
 - **Block Explorer**: [https://explorer-studio.genlayer.com/](https://explorer-studio.genlayer.com/)
 - Full on-chain proof, transaction table, and raw receipts are documented in [docs/VERIFICATION.md](docs/VERIFICATION.md).
@@ -34,12 +35,15 @@ GenLayer enables **Intelligent Contracts** written in Python executed inside a s
    - The spec can only be locked (`lock`) when:
      - At least 4 scenarios are present across at least 2 distinct expected labels.
      - Every party has proposed at least one scenario.
-     - All parties have signed the current clause version.
+     - All parties have signed the current clause version and bound their signatures to the exact final scenario suite.
      - All scenarios are green (consensus matches expected).
-3. **Amendment Cycle**:
+3. **Amendment Cycle & Suite Drift Detection**:
    - If a scenario is red, parties clarify the clause text via `amend()`, resetting signatures and re-evaluating until validators agree.
-4. **Dispute Adjudication with In-Band Canary Calibration**:
+   - If any new scenario is added after a party has signed, the contract detects suite drift and invalidates that signature; locking is blocked until all parties re-sign the updated scenario suite.
+4. **Dispute Adjudication with In-Band Canary Calibration & Tamper Protections**:
    - At dispute time, parties stipulate (`stipulate_facts`) and confirm (`confirm_facts`) facts.
+   - **Anti-Restipulation**: The contract rejects identical-text restipulation attempts (`facts with this id already exist; confirm the existing record instead`), preventing a party from resetting or overwriting confirmations on existing facts.
+   - **Anti-Re-Adjudication**: Once adjudicated, the ruling is permanently sealed against re-adjudication (`ruling already exists for these facts`), guaranteeing that settled verdicts cannot be overwritten.
    - During `adjudicate`, locked scenarios serve two roles:
      - **Anchors**: Up to 3 settled examples are injected as few-shot exemplars.
      - **In-Band Canary**: One held-back settled scenario is evaluated alongside the disputed facts. If the validator model fails the known canary test, the verdict is flagged as `UNRELIABLE` (judge abstains) rather than rendering a confidently incorrect judgment. *(Note: UNRELIABLE ruling shown in mocks only; in the live studionet run, the validator model accurately passed the canary)*.
@@ -70,11 +74,11 @@ GenLayer enables **Intelligent Contracts** written in Python executed inside a s
 - `add_scenario(spec_id: str, text: str, expected: str) -> int`: Proposes scenario.
 - `run_scenario(spec_id: str, n: int) -> str`: Executes validator consensus on scenario.
 - `amend(spec_id: str, new_clause: str) -> None`: Revises clause text; resets signatures and marks scenario runs stale.
-- `sign(spec_id: str) -> None`: Signs current clause version.
-- `lock(spec_id: str) -> str`: Validates preconditions and locks agreement, saving immutable `spec_hash`.
-- `stipulate_facts(spec_id: str, text: str) -> str`: Submits dispute facts under locked spec.
+- `sign(spec_id: str) -> None`: Signs current clause version and cryptographically binds the caller's signature to the exact current scenario suite digest.
+- `lock(spec_id: str) -> str`: Validates preconditions (all scenarios green, every party proposed a scenario, all parties signed matching the exact scenario suite) and locks agreement, saving immutable `spec_hash`.
+- `stipulate_facts(spec_id: str, text: str) -> str`: Submits dispute facts under locked spec. Rejects duplicate restipulation if identical facts already exist.
 - `confirm_facts(spec_id: str, facts_id: str) -> None`: Counterparty confirms facts (2 distinct parties required).
-- `adjudicate(spec_id: str, facts_id: str) -> str`: Executes canary-calibrated consensus ruling.
+- `adjudicate(spec_id: str, facts_id: str) -> str`: Executes canary-calibrated consensus ruling. Rejects duplicate re-adjudication if a ruling already exists for these facts.
 
 ### View Methods
 - `get_spec(spec_id: str) -> str`: Returns spec JSON.

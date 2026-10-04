@@ -1,9 +1,9 @@
 {
   "network": "studionet",
   "chainId": 61999,
-  "contractAddress": "0xf227D68595178A2192888c85E3550fEff4b79406",
-  "consumerAddress": "0x9Fe97e71A0eeF88594abDea901B978519C98df34",
-  "deployTxHash": "0xf2d7bfa406a46cef66fa643a8eb3dae7f35e94efa0e622600a47c9cf494a89c2",
+  "contractAddress": "0x13ac18867642fdCd740EA14c6EA7588abdCb7F73",
+  "consumerAddress": "0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B",
+  "deployTxHash": "0xc5f20bf7bdd3d2569f1edfd0719d3d21fd98a128e976ce7a8d71b288aab391ec",
   "partyA": "0x8D99B01692b2c16A5Cda7c30e1aAeeDC69eE5031",
   "partyB": "0x109C3A6f0CC9F467F93FfBa5Afb736208b5DD4B2",
   "specId": "20f3293644c0",

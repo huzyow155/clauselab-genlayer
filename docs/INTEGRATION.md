@@ -5,9 +5,9 @@
 - **Target Network**: GenLayer Studionet
 - **Chain ID**: `61999`
 - **JSON-RPC Endpoint**: `https://studio.genlayer.com/api`
-- **ClauseLab Contract Address**: [`0xf227D68595178A2192888c85E3550fEff4b79406`](https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406) *(Supersedes `0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2`)*
-- **Consumer Contract Address**: [`0x9Fe97e71A0eeF88594abDea901B978519C98df34`](https://explorer-studio.genlayer.com/address/0x9Fe97e71A0eeF88594abDea901B978519C98df34)
-- **Block Explorer**: `https://explorer-studio.genlayer.com/address/0xf227D68595178A2192888c85E3550fEff4b79406`
+- **ClauseLab Contract Address**: [`0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`](https://explorer-studio.genlayer.com/address/0x13ac18867642fdCd740EA14c6EA7588abdCb7F73)
+- **Consumer Contract Address**: [`0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B`](https://explorer-studio.genlayer.com/address/0x97B9c47d0d5750ff8d8FED3C846DB966e7b0ba0B)
+- **Block Explorer**: `https://explorer-studio.genlayer.com/address/0x13ac18867642fdCd740EA14c6EA7588abdCb7F73`
 - **SDK**: `genlayer-js@^1.1.8`
 - **Chain Object**: `chains.studionet`
 

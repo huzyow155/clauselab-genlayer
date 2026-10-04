@@ -11,12 +11,8 @@
   "sourceSha256": "812f70508bb321c0b27664f51055293fa08d5f737054111037d1a3294f034554",
   "supersededAddresses": [
     {
-      "address": "0xf227D68595178A2192888c85E3550fEff4b79406",
-      "reason": "Superseded by Oct 4 2026 steward-requested security upgrade (Bug 1 scenario suite binding + Bug 2 anti-restipulation protections)"
-    },
-    {
       "address": "0x9Ec4C9ad7B6fAb7490650F1A17D5b1129383a2F2",
-      "reason": "Earlier interrupted run superseded by full end-to-end lifecycle run on 0xf227D68595178A2192888c85E3550fEff4b79406"
+      "reason": "Earlier interrupted run superseded by production deployment"
     },
     {
       "address": "0x9bE44666E74A92371bae1f33B1a1AcE091FFab7E",
